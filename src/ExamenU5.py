@@ -1,32 +1,40 @@
-from bullet import Check, keyhandler, styles
-from bullet.charDef import NEWLINE_KEY
+from bullet import Bullet, SlidePrompt, Check, YesNo, Input, Password, Numbers,  colors
+import os
+def clear(): return os.system('clear')
 
 
-class MinMaxCheck(Check):
-    def __init__(self, min_selections=0, max_selections=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.min_selections = min_selections
-        self.max_selections = max_selections
-        if max_selections is None:
-            self.max_selections = len(self.choices)
+def AddAdvice():
+    clear()
+    Add = SlidePrompt(
+        [
+            Input("Marca del teléfono: ", default="",
+                  word_color=colors.foreground["yellow"]),
+            Bullet("Sistema operativo:", choices=[
+                   "Android", "IOS"], margin=2, background_on_switch=colors.background["white"], word_on_switch=colors.foreground["black"]),
+            Numbers(
+                "RAM: ", word_color=colors.foreground["yellow"], type=int),
+            Input("CPU: ", default="", word_color=colors.foreground["yellow"])
+        ]
+    )
+    actualDevice = Add.launch()
+    deviceDic = {'brand': actualDevice[0][1], 'os': actualDevice[1][1],
+                 'ram': actualDevice[2][1], 'cpu': actualDevice[3][1]}
+    devices.append(deviceDic)
 
-    @keyhandler.register(NEWLINE_KEY)
-    def accept(self):
-        if self.valid():
-            return super().accept()
 
-    def valid(self):
-        return self.min_selections <= sum(1 for c in self.checked if c) <= self.max_selections
-
-
-client = MinMaxCheck(
-    prompt="Choose 2 or 3 from the list: ",
-    min_selections=2,
-    max_selections=3,
-    return_index=True,
-    **styles.Example,
-    **styles.Exam,
-)
-print('\n', end='')
-result = client.launch()
-print(result)
+selectedOption = ""
+devices = list()
+while(selectedOption != "Salir del programa"):
+    clear()
+    principalMenu = Bullet("Menú principal", choices=[
+        "Agregar dispositivo", "Imprimir reporte", "Salir del programa"], margin=5)
+    selectedOption = principalMenu.launch()
+    if selectedOption == "Agregar dispositivo":
+        AddAdvice()
+    print(selectedOption)
+# print(devices)
+for element in devices:
+    print(f"Marca: {element['brand']}")
+    print(f"OS: {element['os']}")
+    print(f"RAM: {element['ram']}")
+    print(f"CPU: {element['cpu']}")
